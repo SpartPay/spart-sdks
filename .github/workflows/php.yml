@@ -1,0 +1,37 @@
+name: php
+
+on:
+  push:
+    branches: [main]
+    paths: ['php/**', 'fixtures.json', '.github/workflows/php.yml']
+  pull_request:
+    paths: ['php/**', 'fixtures.json', '.github/workflows/php.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  php:
+    name: php SDK (lint + tests)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: php
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc  # 2.37.1
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, curl
+          tools: composer:v2
+          coverage: none
+      - uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda  # 4.0.0
+        with:
+          working-directory: php
+      - name: PHPCS
+        run: vendor/bin/phpcs
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=512M
+      - name: PHPUnit
+        run: vendor/bin/phpunit --no-coverage tests

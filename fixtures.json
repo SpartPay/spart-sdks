@@ -1,0 +1,90 @@
+{
+  "version": 2,
+  "secret": "whsec_test_5f4dcc3b5aa765d61d8327deb882cf99",
+  "cases": [
+    {
+      "name": "valid_utf8_body",
+      "now": 1700000000,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "t=1700000000,v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e",
+      "expected": true
+    },
+    {
+      "name": "tampered_body_one_byte",
+      "now": 1700000000,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"} ",
+      "signatureHeader": "t=1700000000,v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e",
+      "expected": false
+    },
+    {
+      "name": "reordered_segments",
+      "now": 1700000000,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e,t=1700000000",
+      "expected": true
+    },
+    {
+      "name": "unknown_segment_ignored",
+      "now": 1700000000,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "t=1700000000,v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e,foo=bar",
+      "expected": true
+    },
+    {
+      "name": "duplicate_v1_last_wins",
+      "now": 1700000000,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "t=1700000000,v1=deadbeef,v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e",
+      "expected": true
+    },
+    {
+      "name": "empty_and_trailing_segments_ignored",
+      "now": 1700000000,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "t=1700000000,,v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e,",
+      "expected": true
+    },
+    {
+      "name": "uppercase_hex_rejected",
+      "now": 1700000000,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "t=1700000000,v1=1320B12124D4CD97A04025E2BE236208AD07D70E2BA534E8114F366EDBFBF15E",
+      "expected": false
+    },
+    {
+      "name": "non_ascii_digit_t_rejected",
+      "now": 1700000000,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "t=١٧٠٠٠٠٠٠٠٠,v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e",
+      "expected": false
+    },
+    {
+      "name": "stale_timestamp_rejected",
+      "now": 1700000301,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "t=1700000000,v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e",
+      "expected": false
+    },
+    {
+      "name": "future_timestamp_rejected",
+      "now": 1699999699,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "t=1700000000,v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e",
+      "expected": false
+    },
+    {
+      "name": "boundary_plus_tolerance_accepted",
+      "now": 1700000300,
+      "rawBodyUtf8": "{\"id\":\"evt_test_1\",\"type\":\"order.completed\",\"data\":{\"order\":{\"id\":\"ord_1\",\"amount\":1299}},\"note\":\"café über\"}",
+      "signatureHeader": "t=1700000000,v1=1320b12124d4cd97a04025e2be236208ad07d70e2ba534e8114f366edbfbf15e",
+      "expected": true
+    },
+    {
+      "name": "binary_non_utf8_body",
+      "now": 1700000000,
+      "rawBodyBase64": "AP8QgH/DKA==",
+      "signatureHeader": "t=1700000000,v1=21cf7667fae2d2b52400971de2c37e329c637bbb2aa2459d49a1240d2cbc49e5",
+      "expected": true
+    }
+  ]
+}

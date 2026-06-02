@@ -1,0 +1,21 @@
+# PHP
+php/vendor/
+php/.phpunit.cache/
+
+# Node
+node/node_modules/
+node/dist/
+node/coverage/
+
+# Python
+python/.venv/
+python/dist/
+python/**/__pycache__/
+python/.pytest_cache/
+
+# .NET
+dotnet/**/bin/
+dotnet/**/obj/
+
+# OS
+.DS_Store

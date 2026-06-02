@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<ruleset name="Spart SDK">
+    <description>PSR-12 coding standard for the Spart PHP SDK.</description>
+
+    <file>src</file>
+    <file>tests</file>
+
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg value="p"/>
+    <arg value="s"/>
+
+    <rule ref="PSR12"/>
+
+    <!-- Test methods intentionally use test_snake_case naming per PHPUnit convention. -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName">
+        <exclude-pattern>tests/</exclude-pattern>
+    </rule>
+
+    <!-- Raise the soft line-length limit. PSR-12 mandates no hard limit; 120
+         is only advisory. Test data arrays legitimately exceed 120 chars. -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="200"/>
+            <property name="absoluteLineLimit" value="0"/>
+        </properties>
+    </rule>
+</ruleset>
