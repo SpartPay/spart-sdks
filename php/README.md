@@ -1,5 +1,9 @@
 # Spart PHP SDK
 
+[![Packagist version](https://img.shields.io/packagist/v/spart/sdk.svg?logo=packagist&logoColor=white)](https://packagist.org/packages/spart/sdk)
+[![Packagist downloads](https://img.shields.io/packagist/dt/spart/sdk.svg)](https://packagist.org/packages/spart/sdk)
+[![php CI](https://github.com/SpartPay/spart-sdks/actions/workflows/php.yml/badge.svg)](https://github.com/SpartPay/spart-sdks/actions/workflows/php.yml)
+
 Official PHP SDK for the [Spart](https://api.spartpay.com) payment-splitting platform.
 
 > ## ⚠️ Verification Status
