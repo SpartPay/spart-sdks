@@ -1,0 +1,78 @@
+name: php-split
+
+# Mirrors the php/ SDK subtree to the read-only repo SpartPay/spart-php-sdk so it
+# can be published on Packagist (which requires composer.json at the repo root).
+# Source of truth stays in this monorepo's php/ folder — never edit the mirror.
+
+on:
+  push:
+    tags: ['php-v*']
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: php-split
+  cancel-in-progress: false
+
+jobs:
+  split:
+    name: Split php/ to spart-php-sdk
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0  # splitsh-lite needs full history
+
+      - name: Install splitsh-lite (pinned + checksum-verified)
+        run: |
+          set -euo pipefail
+          cd /tmp
+          curl -sSL -o lite.tgz \
+            https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz
+          echo "2539301ce5e21d0ca44b689d0dd2c1b20d9f9e996c1fe6c462afb8af4e7141cc  lite.tgz" \
+            | sha256sum -c -
+          tar xzf lite.tgz
+          sudo install -m 0755 splitsh-lite /usr/local/bin/splitsh-lite
+
+      - name: Compute split commit for php/
+        id: split
+        run: echo "sha=$(splitsh-lite --prefix=php/)" >> "$GITHUB_OUTPUT"
+
+      - name: Mint short-lived mirror token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
+        with:
+          app-id: ${{ secrets.PHP_SPLIT_APP_ID }}
+          private-key: ${{ secrets.PHP_SPLIT_APP_PRIVATE_KEY }}
+          owner: SpartPay
+          repositories: spart-php-sdk
+
+      - name: Push subtree to mirror
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SPLIT_SHA: ${{ steps.split.outputs.sha }}
+        run: |
+          set -euo pipefail
+          git remote add mirror \
+            "https://x-access-token:${GH_TOKEN}@github.com/SpartPay/spart-php-sdk.git"
+          # The mirror is fully generated, so force-updating main is expected.
+          git push --force mirror "${SPLIT_SHA}:refs/heads/main"
+          # Publish a clean semver tag (php-v0.1.0 -> 0.1.0) only on real tag
+          # pushes — never on a manual dispatch. Release tags are immutable:
+          # skip if already published identically, fail on divergence.
+          if [ "${GITHUB_EVENT_NAME:-}" = "push" ] && [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#php-v}"
+            existing="$(git ls-remote --tags mirror "refs/tags/${VERSION}" | awk '{print $1}')"
+            if [ -z "$existing" ]; then
+              git tag "$VERSION" "$SPLIT_SHA"
+              git push mirror "refs/tags/${VERSION}"
+            elif [ "$existing" = "$SPLIT_SHA" ]; then
+              echo "Mirror tag ${VERSION} already points at ${SPLIT_SHA}; nothing to do."
+            else
+              echo "::error::Mirror tag ${VERSION} exists but points at ${existing}, not ${SPLIT_SHA}. Refusing to overwrite a published release tag."
+              exit 1
+            fi
+          fi
