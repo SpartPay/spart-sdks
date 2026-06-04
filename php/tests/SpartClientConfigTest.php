@@ -10,6 +10,23 @@ use Spart\Sdk\SpartClientConfig;
 
 final class SpartClientConfigTest extends TestCase
 {
+    public function test_default_base_url_constant_is_spartpay_production(): void
+    {
+        self::assertSame('https://api.spartpay.com', SpartClientConfig::DEFAULT_BASE_URL);
+    }
+
+    public function test_base_url_defaults_to_spartpay_production_when_omitted(): void
+    {
+        $cfg = new SpartClientConfig(apiKey: 'k');
+        self::assertSame('https://api.spartpay.com', $cfg->baseUrl);
+    }
+
+    public function test_explicit_base_url_overrides_default(): void
+    {
+        $cfg = new SpartClientConfig(apiKey: 'k', baseUrl: 'https://api.example.com');
+        self::assertSame('https://api.example.com', $cfg->baseUrl);
+    }
+
     public function test_constructor_rejects_scheme_only_base_url(): void
     {
         $this->expectException(\InvalidArgumentException::class);

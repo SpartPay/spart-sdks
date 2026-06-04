@@ -10,13 +10,15 @@ use Spart\Sdk\Retry\RetryPolicy;
 /** @final */
 final class SpartClientConfig
 {
+    public const DEFAULT_BASE_URL = 'https://api.spartpay.com';
+
     public readonly string $baseUrl;
     public readonly RetryPolicy $retryPolicy;
     public readonly string $userAgent;
 
     public function __construct(
-        string $baseUrl,
         public readonly string $apiKey,
+        string $baseUrl = self::DEFAULT_BASE_URL,
         public readonly int $timeoutSeconds = 30,
         ?RetryPolicy $retryPolicy = null,
         ?string $userAgent = null,

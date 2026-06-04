@@ -40,9 +40,10 @@ composer require spart/sdk
 use Spart\Sdk\SpartClient;
 use Spart\Sdk\SpartClientConfig;
 
+// baseUrl defaults to https://api.spartpay.com; override it only for
+// non-production environments.
 $config = new SpartClientConfig(
     apiKey: 'sk_live_your_api_key_here',
-    baseUrl: 'https://api.spart.example'
 );
 $client = new SpartClient($config);
 ```
