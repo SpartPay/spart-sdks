@@ -29,7 +29,11 @@ jobs:
       - name: Install splitsh-lite (pinned + checksum-verified)
         run: |
           set -euo pipefail
-          cd /tmp
+          # Extract into an owned temp dir, not /tmp: the tarball contains a "."
+          # member and tar tries to chmod/utime the extraction dir. On /tmp
+          # (sticky bit, root-owned) that fails with "Operation not permitted".
+          workdir="$(mktemp -d)"
+          cd "$workdir"
           curl -sSL -o lite.tgz \
             https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz
           echo "2539301ce5e21d0ca44b689d0dd2c1b20d9f9e996c1fe6c462afb8af4e7141cc  lite.tgz" \
