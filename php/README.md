@@ -29,6 +29,13 @@ Install via Composer:
 composer require spart/sdk
 ```
 
+> **Note** — this package is distributed on
+> [Packagist](https://packagist.org/packages/spart/sdk) from an automated,
+> read-only mirror ([`SpartPay/spart-php-sdk`](https://github.com/SpartPay/spart-php-sdk))
+> of the `php/` directory in the
+> [`SpartPay/spart-sdks`](https://github.com/SpartPay/spart-sdks) monorepo.
+> Please open issues and pull requests against the **monorepo**, not the mirror.
+
 **PHP version requirement:** PHP 8.1 or higher.
 
 ## Usage
