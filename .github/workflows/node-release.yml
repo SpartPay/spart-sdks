@@ -35,24 +35,22 @@ jobs:
           cache: 'npm'
           cache-dependency-path: node/package-lock.json
 
+      # actions/setup-node writes `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`
+      # into the npm userconfig. With no NODE_AUTH_TOKEN this placeholder resolves to an
+      # empty token, but its mere presence makes npm treat a credential as configured and
+      # skip OIDC — causing `npm publish` to fail with E404. Removing the line lets npm's
+      # OIDC trusted-publishing flow run (the id-token is available via id-token: write).
+      - name: Enable npm OIDC trusted publishing
+        run: |
+          if [ -n "$NPM_CONFIG_USERCONFIG" ] && [ -f "$NPM_CONFIG_USERCONFIG" ]; then
+            sed -i '/_authToken=/d' "$NPM_CONFIG_USERCONFIG"
+          fi
+
       # Trusted publishing requires npm >= 11.5.1, which ships with Node 24.
       - name: Print tool versions
         run: |
           node --version
           npm --version
-
-      - name: Diagnose OIDC availability
-        run: |
-          echo "event_name=${{ github.event_name }}"
-          echo "ACTIONS_ID_TOKEN_REQUEST_URL is ${ACTIONS_ID_TOKEN_REQUEST_URL:+SET}${ACTIONS_ID_TOKEN_REQUEST_URL:-UNSET}"
-          echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN is ${ACTIONS_ID_TOKEN_REQUEST_TOKEN:+SET}${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-UNSET}"
-          echo "--- ~/.npmrc ---"
-          cat ~/.npmrc 2>/dev/null || echo "(no ~/.npmrc)"
-          echo "--- NPM_CONFIG_USERCONFIG ($NPM_CONFIG_USERCONFIG) ---"
-          cat "$NPM_CONFIG_USERCONFIG" 2>/dev/null || echo "(no userconfig)"
-          echo "--- npm config get registry / _authToken ---"
-          npm config get registry
-          echo "authToken=[$(npm config get //registry.npmjs.org/:_authToken)]"
 
       - name: Derive version from tag
         id: version
