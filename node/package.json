@@ -1,12 +1,34 @@
 {
   "name": "@spartpay/sdk",
-  "version": "0.1.0",
+  "version": "0.0.0-dev",
   "description": "Spart webhook signature verification for Node.js.",
   "license": "MIT",
+  "author": "Spart",
+  "homepage": "https://github.com/SpartPay/spart-sdks/tree/main/node#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SpartPay/spart-sdks.git",
+    "directory": "node"
+  },
+  "bugs": {
+    "url": "https://github.com/SpartPay/spart-sdks/issues"
+  },
+  "keywords": [
+    "spart",
+    "spartpay",
+    "webhook",
+    "signature",
+    "hmac",
+    "sha256",
+    "payments"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": { "node": ">=18" },
   "scripts": {
     "build": "tsc -p tsconfig.json",
