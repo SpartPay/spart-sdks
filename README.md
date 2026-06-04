@@ -2,12 +2,12 @@
 
 Official, open-source Spart client code. One repository, one folder per language.
 
-| Folder    | Package manager | Package         | Status                         |
-|-----------|-----------------|-----------------|--------------------------------|
-| `php/`    | Composer        | `spart/sdk`     | Full SDK                       |
-| `node/`   | npm             | `@spartpay/sdk` | Webhook signature verification |
-| `python/` | PyPI            | `spart-sdk`     | Webhook signature verification |
-| `dotnet/` | NuGet           | `Spart.Sdk`     | Webhook signature verification |
+| Folder    | Package manager | Package         | Status                         | Version | CI |
+|-----------|-----------------|-----------------|--------------------------------|---------|----|
+| `php/`    | Composer        | `spart/sdk`     | Full SDK                       | —       | [![php CI](https://github.com/SpartPay/spart-sdks/actions/workflows/php.yml/badge.svg)](https://github.com/SpartPay/spart-sdks/actions/workflows/php.yml) |
+| `node/`   | npm             | [`@spartpay/sdk`](https://www.npmjs.com/package/@spartpay/sdk) | Webhook signature verification | [![npm version](https://img.shields.io/npm/v/@spartpay/sdk.svg?logo=npm)](https://www.npmjs.com/package/@spartpay/sdk) | [![node CI](https://github.com/SpartPay/spart-sdks/actions/workflows/node.yml/badge.svg)](https://github.com/SpartPay/spart-sdks/actions/workflows/node.yml) |
+| `python/` | PyPI            | `spart-sdk`     | Webhook signature verification | —       | [![python CI](https://github.com/SpartPay/spart-sdks/actions/workflows/python.yml/badge.svg)](https://github.com/SpartPay/spart-sdks/actions/workflows/python.yml) |
+| `dotnet/` | NuGet           | [`Spart.Sdk`](https://www.nuget.org/packages/Spart.Sdk) | Webhook signature verification | [![NuGet version](https://img.shields.io/nuget/v/Spart.Sdk.svg?logo=nuget)](https://www.nuget.org/packages/Spart.Sdk) | [![dotnet CI](https://github.com/SpartPay/spart-sdks/actions/workflows/dotnet.yml/badge.svg)](https://github.com/SpartPay/spart-sdks/actions/workflows/dotnet.yml) |
 
 ## Webhook signature verification
 
