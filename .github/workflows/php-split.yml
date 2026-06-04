@@ -25,6 +25,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 0  # splitsh-lite needs full history
+          # Don't persist the default GITHUB_TOKEN as an http.extraheader: it
+          # applies to all github.com URLs and would override the App token we
+          # embed in the mirror push URL, causing a 403 as github-actions[bot].
+          persist-credentials: false
 
       - name: Install splitsh-lite (pinned + checksum-verified)
         run: |
