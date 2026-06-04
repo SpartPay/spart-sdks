@@ -48,6 +48,11 @@ jobs:
           echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN is ${ACTIONS_ID_TOKEN_REQUEST_TOKEN:+SET}${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-UNSET}"
           echo "--- ~/.npmrc ---"
           cat ~/.npmrc 2>/dev/null || echo "(no ~/.npmrc)"
+          echo "--- NPM_CONFIG_USERCONFIG ($NPM_CONFIG_USERCONFIG) ---"
+          cat "$NPM_CONFIG_USERCONFIG" 2>/dev/null || echo "(no userconfig)"
+          echo "--- npm config get registry / _authToken ---"
+          npm config get registry
+          echo "authToken=[$(npm config get //registry.npmjs.org/:_authToken)]"
 
       - name: Derive version from tag
         id: version
