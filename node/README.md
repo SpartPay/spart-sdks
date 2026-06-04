@@ -1,5 +1,9 @@
 # @spartpay/sdk
 
+[![npm version](https://img.shields.io/npm/v/@spartpay/sdk.svg?logo=npm)](https://www.npmjs.com/package/@spartpay/sdk)
+[![npm downloads](https://img.shields.io/npm/dm/@spartpay/sdk.svg)](https://www.npmjs.com/package/@spartpay/sdk)
+[![node CI](https://github.com/SpartPay/spart-sdks/actions/workflows/node.yml/badge.svg)](https://github.com/SpartPay/spart-sdks/actions/workflows/node.yml)
+
 Spart webhook signature verification for Node.js. Zero runtime dependencies.
 
 ## Install

@@ -1,5 +1,9 @@
 # Spart.Sdk
 
+[![NuGet version](https://img.shields.io/nuget/v/Spart.Sdk.svg?logo=nuget)](https://www.nuget.org/packages/Spart.Sdk)
+[![NuGet downloads](https://img.shields.io/nuget/dt/Spart.Sdk.svg)](https://www.nuget.org/packages/Spart.Sdk)
+[![dotnet CI](https://github.com/SpartPay/spart-sdks/actions/workflows/dotnet.yml/badge.svg)](https://github.com/SpartPay/spart-sdks/actions/workflows/dotnet.yml)
+
 Spart webhook signature verification for .NET. No external dependencies.
 
 ## Install
