@@ -4,9 +4,30 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
     <PackageId>Spart.Sdk</PackageId>
-    <Version>0.1.0</Version>
-    <Description>Spart webhook signature verification for .NET.</Description>
+    <!-- Placeholder: the published version is derived from the `dotnet-vX.Y.Z`
+         release tag and injected at pack time (see .github/workflows/dotnet-release.yml). -->
+    <Version>0.0.0-dev</Version>
+    <Description>Spart webhook signature verification for .NET. No external dependencies.</Description>
+    <Authors>Spart</Authors>
+    <Company>Spart</Company>
+    <Product>Spart SDK</Product>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/SpartPay/spart-sdks/tree/main/dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SpartPay/spart-sdks.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>spart;spartpay;webhook;signature;hmac;sha256;payments</PackageTags>
+
+    <!-- Reproducible builds + provenance for trusted publishing. -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>
