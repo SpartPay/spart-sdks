@@ -19,6 +19,7 @@ enum EventType: string
 {
     case IntentCreated     = 'intent.created';
     case PaymentAuthorized = 'payment.authorized';
+    case OrderCreated      = 'order.created';
     case OrderCompleted    = 'order.completed';
     case OrderCanceled     = 'order.canceled';
     case OrderExpired      = 'order.expired';

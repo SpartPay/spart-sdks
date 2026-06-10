@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Spart\Sdk\Webhooks\Models\WebhookContact;
 use Spart\Sdk\Webhooks\Models\WebhookLineItem;
 use Spart\Sdk\Webhooks\Models\WebhookMoney;
+use Spart\Sdk\Webhooks\Models\WebhookPaymentPart;
 use Spart\Sdk\Webhooks\OrderEnvelopeData;
 use Spart\Sdk\Webhooks\OrderStatus;
 
@@ -153,5 +154,97 @@ final class OrderEnvelopeDataTest extends TestCase
         $d = OrderEnvelopeData::fromArray($row);
         self::assertSame('someunknownfuturestatus', $d->status);
         self::assertFalse(OrderStatus::isKnown($d->status));
+    }
+
+    // -------------------------------------------------------------------------
+    // paymentParts (payees)
+    // -------------------------------------------------------------------------
+
+    /** @return array<string,mixed> */
+    private static function validPart(): array
+    {
+        return [
+            'id'          => '11111111-1111-1111-1111-111111111111',
+            'amount'      => 100,
+            'amountType'  => 'Percent',
+            'status'      => 'captured',
+            'isSparter'   => true,
+            'payee'       => ['fullName' => 'Alice S', 'email' => 'a****e@e******le.com'],
+            'payeeCharge' => [
+                'net'   => ['currency' => 'EUR', 'amount' => 195.00],
+                'total' => ['currency' => 'EUR', 'amount' => 199.99],
+                'fees'  => ['platform' => 4.99],
+            ],
+            'authorizedAt' => '2026-06-09T00:15:16+00:00',
+            'capturedAt'   => '2026-06-09T00:16:00+00:00',
+            'releasedAt'   => null,
+        ];
+    }
+
+    public function test_payment_parts_default_to_empty_when_absent(): void
+    {
+        // Backward compat: payloads predating the field (or order events that
+        // carry no parts) must parse cleanly with an empty list.
+        $row = self::validRow();
+        self::assertArrayNotHasKey('paymentParts', $row);
+        self::assertSame([], OrderEnvelopeData::fromArray($row)->paymentParts);
+    }
+
+    public function test_payment_parts_default_to_empty_when_null(): void
+    {
+        $row = self::validRow();
+        $row['paymentParts'] = null;
+        self::assertSame([], OrderEnvelopeData::fromArray($row)->paymentParts);
+    }
+
+    public function test_payment_parts_default_to_empty_when_empty_array(): void
+    {
+        $row = self::validRow();
+        $row['paymentParts'] = [];
+        self::assertSame([], OrderEnvelopeData::fromArray($row)->paymentParts);
+    }
+
+    public function test_payment_parts_are_parsed(): void
+    {
+        $row = self::validRow();
+        $row['paymentParts'] = [self::validPart(), self::validPart()];
+
+        $d = OrderEnvelopeData::fromArray($row);
+
+        self::assertCount(2, $d->paymentParts);
+        self::assertContainsOnlyInstancesOf(WebhookPaymentPart::class, $d->paymentParts);
+        self::assertSame('Percent', $d->paymentParts[0]->amountType);
+        self::assertSame('captured', $d->paymentParts[0]->status);
+        self::assertTrue($d->paymentParts[0]->isSparter);
+        self::assertSame(199.99, $d->paymentParts[0]->payeeCharge->total->amount);
+        self::assertSame('Alice S', $d->paymentParts[0]->payee->fullName);
+    }
+
+    public function test_throws_when_payment_parts_is_an_object(): void
+    {
+        // A JSON object (assoc array) is not a list — surface the drift.
+        $row = self::validRow();
+        $row['paymentParts'] = ['id' => 'x'];
+        $this->expectException(\InvalidArgumentException::class);
+        OrderEnvelopeData::fromArray($row);
+    }
+
+    public function test_throws_when_a_payment_part_entry_is_not_an_object(): void
+    {
+        $row = self::validRow();
+        $row['paymentParts'] = ['not-an-object'];
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('OrderEnvelopeData: paymentParts entries must be objects');
+        OrderEnvelopeData::fromArray($row);
+    }
+
+    public function test_throws_when_a_payment_part_entry_is_malformed(): void
+    {
+        $row = self::validRow();
+        $part = self::validPart();
+        unset($part['payeeCharge']);
+        $row['paymentParts'] = [$part];
+        $this->expectException(\InvalidArgumentException::class);
+        OrderEnvelopeData::fromArray($row);
     }
 }

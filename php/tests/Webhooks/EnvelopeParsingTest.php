@@ -7,7 +7,9 @@ namespace Spart\Sdk\Tests\Webhooks;
 use PHPUnit\Framework\TestCase;
 use Spart\Sdk\Exceptions\SpartValidationException;
 use Spart\Sdk\Webhooks\Event;
+use Spart\Sdk\Webhooks\EventType;
 use Spart\Sdk\Webhooks\IntentEnvelopeData;
+use Spart\Sdk\Webhooks\OrderEnvelopeData;
 use Spart\Sdk\Webhooks\SignatureVerifier;
 
 final class EnvelopeParsingTest extends TestCase
@@ -124,5 +126,52 @@ final class EnvelopeParsingTest extends TestCase
             deliveryId: 'd',
             attempt: 1,
         );
+    }
+
+    public function test_verify_and_parse_routes_order_created_to_order_envelope_with_payment_parts(): void
+    {
+        $body = (string) json_encode([
+            'id' => 'evt_oc', 'type' => 'order.created', 'createdAt' => '2026-06-09T00:15:22Z',
+            'apiVersion' => 'v1', 'merchantAppId' => 'app_1',
+            'data' => ['order' => [
+                'shortId'       => 'o_short',
+                'originalTotal' => ['currency' => 'EUR', 'amount' => 360.00],
+                'finalTotal'    => ['currency' => 'EUR', 'amount' => 361.00],
+                'lineItems'     => [['name' => 'Bands', 'quantity' => 2]],
+                'sparter'       => ['fullName' => 'Beppe B', 'email' => 'o****p@g****l.com'],
+                'paymentParts'  => [[
+                    'id'          => '11111111-1111-1111-1111-111111111111',
+                    'amount'      => 100,
+                    'amountType'  => 'Percent',
+                    'status'      => 'captured',
+                    'isSparter'   => true,
+                    'payee'       => ['fullName' => 'Beppe B', 'email' => 'o****p@g****l.com'],
+                    'payeeCharge' => [
+                        'net'   => ['currency' => 'EUR', 'amount' => 355.01],
+                        'total' => ['currency' => 'EUR', 'amount' => 360.00],
+                        'fees'  => ['platform' => 4.99],
+                    ],
+                    'authorizedAt' => '2026-06-09T00:15:16+00:00',
+                    'capturedAt'   => '2026-06-09T00:16:00+00:00',
+                    'releasedAt'   => null,
+                ]],
+                'sessionId'   => 'spart-wc-2c20ebf2-63',
+                'status'      => 'placed',
+                'countryCode' => 'IT',
+                'createdAt'   => '2026-06-09T00:15:16+00:00',
+            ]],
+        ]);
+        $t = time();
+        $sig = hash_hmac('sha256', "{$t}.{$body}", self::SECRET);
+        $header = "t={$t},v1={$sig}";
+
+        $evt = (new SignatureVerifier(self::SECRET))->verifyAndParse($body, $header, deliveryId: 'd', attempt: 1);
+
+        self::assertSame(EventType::OrderCreated, $evt->knownType);
+        self::assertInstanceOf(OrderEnvelopeData::class, $evt->data);
+        self::assertCount(1, $evt->data->paymentParts);
+        self::assertSame('Percent', $evt->data->paymentParts[0]->amountType);
+        self::assertSame('Beppe B', $evt->data->paymentParts[0]->payee->fullName);
+        self::assertSame(360.0, $evt->data->paymentParts[0]->payeeCharge->total->amount);
     }
 }
