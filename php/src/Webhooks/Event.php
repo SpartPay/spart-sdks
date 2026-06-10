@@ -69,7 +69,7 @@ final class Event
         return match ($known) {
             EventType::IntentCreated
                 => $intent !== null ? IntentEnvelopeData::fromArray($intent) : null,
-            EventType::OrderCompleted, EventType::OrderCanceled, EventType::OrderExpired
+            EventType::OrderCreated, EventType::OrderCompleted, EventType::OrderCanceled, EventType::OrderExpired
                 => $order !== null ? OrderEnvelopeData::fromArray($order) : null,
             EventType::PaymentAuthorized
                 => $payment !== null ? PaymentEnvelopeData::fromArray($payment) : null,

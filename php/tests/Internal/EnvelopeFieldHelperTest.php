@@ -289,4 +289,56 @@ final class EnvelopeFieldHelperTest extends TestCase
         // line items in a future use case) — must not throw.
         self::assertSame([], EnvelopeFieldHelper::requireList(['k' => []], 'k', 'TestDto'));
     }
+
+    // -------------------------------------------------------------------------
+    // optionalList
+    // -------------------------------------------------------------------------
+
+    public function test_optionalList_returns_empty_when_absent(): void
+    {
+        // Forward/backward compat: a payload predating the field (or an order
+        // event without parts) must default to [], never throw.
+        self::assertSame([], EnvelopeFieldHelper::optionalList([], 'k', 'TestDto'));
+    }
+
+    public function test_optionalList_returns_empty_when_null(): void
+    {
+        // Tolerant: an explicit null is treated the same as absent.
+        self::assertSame([], EnvelopeFieldHelper::optionalList(['k' => null], 'k', 'TestDto'));
+    }
+
+    public function test_optionalList_returns_values_for_a_list(): void
+    {
+        self::assertSame(
+            [['a' => 1], ['b' => 2]],
+            EnvelopeFieldHelper::optionalList(['k' => [['a' => 1], ['b' => 2]]], 'k', 'TestDto')
+        );
+    }
+
+    public function test_optionalList_accepts_empty_array(): void
+    {
+        self::assertSame([], EnvelopeFieldHelper::optionalList(['k' => []], 'k', 'TestDto'));
+    }
+
+    public function test_optionalList_throws_when_field_is_a_map(): void
+    {
+        // A JSON object decodes to an assoc array (not a list). The field is
+        // contractually a JSON array — surface the drift instead of silently
+        // reshaping it via array_values.
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('TestDto: k must be a JSON array');
+        EnvelopeFieldHelper::optionalList(['k' => ['id' => 'x']], 'k', 'TestDto');
+    }
+
+    public function test_optionalList_throws_when_field_is_string(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        EnvelopeFieldHelper::optionalList(['k' => 'hello'], 'k', 'TestDto');
+    }
+
+    public function test_optionalList_throws_when_field_is_int(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        EnvelopeFieldHelper::optionalList(['k' => 42], 'k', 'TestDto');
+    }
 }

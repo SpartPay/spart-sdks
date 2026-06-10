@@ -128,4 +128,27 @@ final class EnvelopeFieldHelper
         /** @var list<mixed> */
         return array_values($row[$field]);
     }
+
+    /**
+     * @param array<string,mixed> $row
+     * @return list<mixed>
+     * @throws \InvalidArgumentException when the field is present but is not a JSON array (list).
+     *
+     * Optional counterpart to {@see requireList}. Absent or null fields default
+     * to an empty list so payloads predating a list field (or an event with no
+     * entries) parse cleanly. A present value MUST be a JSON array: a JSON
+     * object decodes to an assoc array (not a list) and is rejected rather than
+     * silently reshaped via array_values, so wire drift surfaces here.
+     */
+    public static function optionalList(array $row, string $field, string $className): array
+    {
+        if (!array_key_exists($field, $row) || $row[$field] === null) {
+            return [];
+        }
+        if (!is_array($row[$field]) || !array_is_list($row[$field])) {
+            throw new \InvalidArgumentException("{$className}: {$field} must be a JSON array when present");
+        }
+        /** @var list<mixed> */
+        return $row[$field];
+    }
 }
