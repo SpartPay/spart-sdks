@@ -23,5 +23,6 @@ enum EventType: string
     case OrderCompleted    = 'order.completed';
     case OrderCanceled     = 'order.canceled';
     case OrderExpired      = 'order.expired';
+    case PaymentPartReleased = 'order.payment_part_released';
     case WebhookTest       = 'webhook.test';
 }
