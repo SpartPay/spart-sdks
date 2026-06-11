@@ -11,19 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Webhook `order.created` event (`EventType::OrderCreated`), routed to the
   order sub-envelope.
+- Webhook `order.payment_part_released` event (`EventType::PaymentPartReleased`), routed to the `payment` sub-envelope.
 - `OrderEnvelopeData::$paymentParts`: an optional, possibly-empty list of
   `WebhookPaymentPart` describing the payees, their charge breakdown
   (net/total/fees) and per-part status.
+- `PaymentPartReleasedEnvelopeData` DTO (`orderShortId`, `sessionId`, `paymentPartId`, `amountReleased`, `payee`, `releasedAt`).
 - `WebhookPaymentPart` and `WebhookCharge` models, plus an `optionalList()`
   envelope helper.
 
 ### Changed
 
-- `EventType` gained a new case (`OrderCreated`). **Consumers that `match()`
-  exhaustively over `EventType` must add an arm for the new case** (or a
-  default arm) — this is a behavioural change for exhaustive matches even
-  though it is source-compatible for non-exhaustive ones. Treat the next
-  release carrying this change as a **minor** version bump.
+- `EventType` now has 8 cases. **BC:** Any consumer performing an exhaustive
+  `match (EventType)` without a `default` arm must add a branch for
+  `EventType::PaymentPartReleased` or PHP will throw `UnhandledMatchError`.
 
 ### Notes
 
