@@ -73,6 +73,8 @@ final class Event
                 => $order !== null ? OrderEnvelopeData::fromArray($order) : null,
             EventType::PaymentAuthorized
                 => $payment !== null ? PaymentEnvelopeData::fromArray($payment) : null,
+            EventType::PaymentPartReleased
+                => $payment !== null ? PaymentPartReleasedEnvelopeData::fromArray($payment) : null,
             EventType::WebhookTest
                 => $test !== null ? TestEnvelopeData::fromArray($test) : null,
         };

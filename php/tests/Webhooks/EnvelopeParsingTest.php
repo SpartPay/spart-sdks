@@ -10,6 +10,7 @@ use Spart\Sdk\Webhooks\Event;
 use Spart\Sdk\Webhooks\EventType;
 use Spart\Sdk\Webhooks\IntentEnvelopeData;
 use Spart\Sdk\Webhooks\OrderEnvelopeData;
+use Spart\Sdk\Webhooks\PaymentPartReleasedEnvelopeData;
 use Spart\Sdk\Webhooks\SignatureVerifier;
 
 final class EnvelopeParsingTest extends TestCase
@@ -173,5 +174,34 @@ final class EnvelopeParsingTest extends TestCase
         self::assertSame('Percent', $evt->data->paymentParts[0]->amountType);
         self::assertSame('Beppe B', $evt->data->paymentParts[0]->payee->fullName);
         self::assertSame(360.0, $evt->data->paymentParts[0]->payeeCharge->total->amount);
+    }
+
+    public function test_verify_and_parse_routes_order_payment_part_released_to_payment_part_released_envelope(): void
+    {
+        $paymentPartId = '22222222-2222-2222-2222-222222222222';
+        $body = (string) json_encode([
+            'id' => 'evt_ppr', 'type' => 'order.payment_part_released', 'createdAt' => '2026-06-09T01:00:00Z',
+            'apiVersion' => 'v1', 'merchantAppId' => 'app_1',
+            'data' => ['payment' => [
+                'orderShortId'   => 'o_short_ppr',
+                'sessionId'      => 'spart-wc-abc123',
+                'paymentPartId'  => $paymentPartId,
+                'amountReleased' => ['currency' => 'EUR', 'amount' => 120.00],
+                'payee'          => ['fullName' => 'Alice M', 'email' => 'a****e@e****l.com'],
+                'releasedAt'     => '2026-06-09T01:00:00+00:00',
+            ]],
+        ]);
+        $t = time();
+        $sig = hash_hmac('sha256', "{$t}.{$body}", self::SECRET);
+        $header = "t={$t},v1={$sig}";
+
+        $evt = (new SignatureVerifier(self::SECRET))->verifyAndParse($body, $header, deliveryId: 'd_ppr', attempt: 1);
+
+        self::assertSame(EventType::PaymentPartReleased, $evt->knownType);
+        self::assertInstanceOf(PaymentPartReleasedEnvelopeData::class, $evt->data);
+        self::assertSame($paymentPartId, $evt->data->paymentPartId);
+        self::assertSame('o_short_ppr', $evt->data->orderShortId);
+        self::assertSame(120.0, $evt->data->amountReleased->amount);
+        self::assertSame('EUR', $evt->data->amountReleased->currency);
     }
 }

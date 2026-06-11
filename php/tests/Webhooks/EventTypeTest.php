@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Spart\Sdk\Webhooks\EventType;
 
 /**
- * Locks the SDK's `EventType` enum to the canonical 7-value set the Spart
+ * Locks the SDK's `EventType` enum to the canonical 8-value set the Spart
  * server emits.
  *
  * The set is intentionally closed: any new server-side event type must
@@ -22,9 +22,9 @@ use Spart\Sdk\Webhooks\EventType;
  */
 final class EventTypeTest extends TestCase
 {
-    public function test_enum_has_exactly_seven_canonical_cases(): void
+    public function test_enum_has_exactly_eight_canonical_cases(): void
     {
-        self::assertCount(7, EventType::cases());
+        self::assertCount(8, EventType::cases());
     }
 
     public function test_each_canonical_value_maps_to_its_case(): void
@@ -35,6 +35,7 @@ final class EventTypeTest extends TestCase
         self::assertSame(EventType::OrderCompleted, EventType::from('order.completed'));
         self::assertSame(EventType::OrderCanceled, EventType::from('order.canceled'));
         self::assertSame(EventType::OrderExpired, EventType::from('order.expired'));
+        self::assertSame(EventType::PaymentPartReleased, EventType::from('order.payment_part_released'));
         self::assertSame(EventType::WebhookTest, EventType::from('webhook.test'));
     }
 
