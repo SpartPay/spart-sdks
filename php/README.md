@@ -98,6 +98,10 @@ $request = new CreateIntentRequest(
         returnUri: 'https://merchant.example/checkout/return',
         cancelUri: 'https://merchant.example/checkout/cancel',
     ),
+    // desiredLanguage is OPTIONAL: the shopper's UI language (ISO 639-1 like
+    // "fr", or a locale like "fr_FR"). The server normalizes it and ignores
+    // unsupported values, so it never fails checkout. Omitted when null.
+    desiredLanguage: 'fr_FR',
 );
 
 $result = $client->intents()->create($request);

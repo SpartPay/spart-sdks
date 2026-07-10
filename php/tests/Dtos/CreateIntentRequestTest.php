@@ -183,4 +183,62 @@ final class CreateIntentRequestTest extends TestCase
             sparter: new Contact('a@b.com'),
         );
     }
+
+    public function test_desired_language_present_in_to_array_when_provided(): void
+    {
+        $req = new CreateIntentRequest(
+            total: Money::fromString('10.00', 'EUR'),
+            lineItems: [new LineItem('Item', 1)],
+            sparter: new Contact('a@b.com'),
+            desiredLanguage: 'fr_FR',
+        );
+        self::assertSame('fr_FR', $req->desiredLanguage);
+        self::assertSame('fr_FR', $req->toArray()['desiredLanguage']);
+    }
+
+    public function test_desired_language_omitted_when_null(): void
+    {
+        $req = new CreateIntentRequest(
+            total: Money::fromString('10.00', 'EUR'),
+            lineItems: [new LineItem('Item', 1)],
+            sparter: new Contact('a@b.com'),
+        );
+        self::assertNull($req->desiredLanguage);
+        self::assertArrayNotHasKey('desiredLanguage', $req->toArray());
+    }
+
+    public function test_desired_language_blank_is_normalized_to_null(): void
+    {
+        $req = new CreateIntentRequest(
+            total: Money::fromString('10.00', 'EUR'),
+            lineItems: [new LineItem('Item', 1)],
+            sparter: new Contact('a@b.com'),
+            desiredLanguage: '   ',
+        );
+        self::assertNull($req->desiredLanguage);
+        self::assertArrayNotHasKey('desiredLanguage', $req->toArray());
+    }
+
+    public function test_desired_language_rejects_over_35_chars(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new CreateIntentRequest(
+            total: Money::fromString('10.00', 'EUR'),
+            lineItems: [new LineItem('Item', 1)],
+            sparter: new Contact('a@b.com'),
+            desiredLanguage: str_repeat('a', 36),
+        );
+    }
+
+    public function test_desired_language_accepts_35_chars(): void
+    {
+        $lang = str_repeat('a', 35);
+        $req  = new CreateIntentRequest(
+            total: Money::fromString('10.00', 'EUR'),
+            lineItems: [new LineItem('Item', 1)],
+            sparter: new Contact('a@b.com'),
+            desiredLanguage: $lang,
+        );
+        self::assertSame($lang, $req->desiredLanguage);
+    }
 }

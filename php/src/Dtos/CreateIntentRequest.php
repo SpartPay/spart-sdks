@@ -24,6 +24,15 @@ use Spart\Sdk\Models\OrderOptions;
 final class CreateIntentRequest
 {
     /**
+     * Optional UI language chosen by the customer (ISO 639-1, e.g. "fr", or a
+     * locale like "fr_FR"). Sent verbatim; the server normalizes it and ignores
+     * unsupported values. Null (the default) omits the field from the payload.
+     * Trimmed on construction; blank becomes null; capped at 35 chars to match
+     * the server's MaximumLength(35).
+     */
+    public readonly ?string $desiredLanguage;
+
+    /**
      * @param list<LineItem> $lineItems
      */
     public function __construct(
@@ -32,6 +41,7 @@ final class CreateIntentRequest
         public readonly Contact $sparter,
         public readonly ?string $sessionId = null,
         public readonly ?OrderOptions $options = null,
+        ?string $desiredLanguage = null,
     ) {
         if ($this->lineItems === []) {
             throw new \InvalidArgumentException('CreateIntentRequest::lineItems must not be empty.');
@@ -61,6 +71,18 @@ final class CreateIntentRequest
                 '(server\'s MoneyDtoValidator rejects zero/negative totals).'
             );
         }
+
+        $normalizedLanguage = $desiredLanguage === null ? null : trim($desiredLanguage);
+        if ($normalizedLanguage === '') {
+            $normalizedLanguage = null;
+        }
+        if ($normalizedLanguage !== null && strlen($normalizedLanguage) > 35) {
+            throw new \InvalidArgumentException(
+                'CreateIntentRequest::desiredLanguage must be at most 35 characters ' .
+                '(server enforces MaximumLength 35).'
+            );
+        }
+        $this->desiredLanguage = $normalizedLanguage;
     }
 
     /** @return array<string, mixed> */
@@ -86,6 +108,10 @@ final class CreateIntentRequest
 
         if ($this->sessionId !== null) {
             $body['sessionId'] = $this->sessionId;
+        }
+
+        if ($this->desiredLanguage !== null) {
+            $body['desiredLanguage'] = $this->desiredLanguage;
         }
 
         if ($this->options !== null) {
