@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `CreateIntentRequest::$desiredLanguage`: optional customer UI language
+  (ISO 639-1 like `fr`, or a locale like `fr_FR`) sent to `POST /api/intents`
+  as `desiredLanguage`. Trimmed on construction; blank becomes `null`; capped
+  at 35 characters. Emitted only when non-null. Backward compatible — the new
+  constructor parameter is optional and last.
 - Webhook `order.created` event (`EventType::OrderCreated`), routed to the
   order sub-envelope.
 - Webhook `order.payment_part_released` event (`EventType::PaymentPartReleased`), routed to the `payment` sub-envelope.
