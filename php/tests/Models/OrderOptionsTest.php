@@ -40,6 +40,22 @@ final class OrderOptionsTest extends TestCase
         self::assertSame(216_000_000_000, $o->maxDurationAsTicks());
     }
 
+    public function test_intent_duration_defaults_to_null(): void
+    {
+        $o = new OrderOptions(maxDuration: new \DateInterval('P1D'));
+        self::assertNull($o->intentDuration);
+        self::assertNull($o->intentDurationAsTicks());
+    }
+
+    public function test_intent_duration_fifteen_minutes_in_ticks(): void
+    {
+        $o = new OrderOptions(
+            maxDuration: new \DateInterval('P1D'),
+            intentDuration: new \DateInterval('PT15M'),
+        );
+        self::assertSame(9_000_000_000, $o->intentDurationAsTicks());
+    }
+
     public function test_rejects_relative_return_uri(): void
     {
         $this->expectException(\InvalidArgumentException::class);

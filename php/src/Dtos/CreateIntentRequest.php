@@ -119,6 +119,10 @@ final class CreateIntentRequest
             // the server's OrderOptions validator runs unconditionally on the
             // sub-object and rejects MaxDurationTicks < OrderOptions.MinDuration.
             $opts = ['maxDurationTicks' => $this->options->maxDurationAsTicks()];
+            $intentTicks = $this->options->intentDurationAsTicks();
+            if ($intentTicks !== null) {
+                $opts['intentDurationTicks'] = $intentTicks;
+            }
             if ($this->options->returnUri !== null) {
                 $opts['returnUri'] = $this->options->returnUri;
             }

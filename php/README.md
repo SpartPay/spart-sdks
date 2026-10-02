@@ -97,6 +97,8 @@ $request = new CreateIntentRequest(
         maxDuration: new \DateInterval('P1D'),
         returnUri: 'https://merchant.example/checkout/return',
         cancelUri: 'https://merchant.example/checkout/cancel',
+        // Optional: how long the intent stays open (server default 15 min, min 1 min).
+        intentDuration: new \DateInterval('PT30M'),
     ),
     // desiredLanguage is OPTIONAL: the shopper's UI language (ISO 639-1 like
     // "fr", or a locale like "fr_FR"). The server normalizes it and ignores
@@ -133,6 +135,9 @@ switch ($event->knownType) {
     case EventType::IntentCreated:
         // Handle intent created
         break;
+    case EventType::IntentExpired:
+        // Handle intent expired (no order placed before the intent TTL)
+        break;
     case EventType::PaymentAuthorized:
         // Handle a payment part being authorized
         break;
@@ -143,7 +148,7 @@ switch ($event->knownType) {
         // Handle order canceled
         break;
     case EventType::OrderExpired:
-        // Handle order expired (intent timed out before completion)
+        // Handle order expired (order timed out before completion)
         break;
     case EventType::WebhookTest:
         // Handle merchant-initiated test ping

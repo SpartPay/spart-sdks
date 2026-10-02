@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `OrderOptions::$intentDuration`: optional `\DateInterval` overriding the
+  intent TTL (server default 15 minutes, minimum 1 minute). Sent as
+  `options.intentDurationTicks` only when set.
+- Webhook `intent.expired` event (`EventType::IntentExpired`), routed to the
+  intent sub-envelope.
+- `IntentEnvelopeData::$expirationDate` and `$expiredAt`: nullable ISO 8601
+  strings for when the intent expires and when it expired.
 - `CreateIntentRequest::$desiredLanguage`: optional customer UI language
   (ISO 639-1 like `fr`, or a locale like `fr_FR`) sent to `POST /api/intents`
   as `desiredLanguage`. Trimmed on construction; blank becomes `null`; capped
@@ -26,9 +33,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `EventType` now has 8 cases. **BC:** Any consumer performing an exhaustive
-  `match (EventType)` without a `default` arm must add a branch for
-  `EventType::PaymentPartReleased` or PHP will throw `UnhandledMatchError`.
+- **BC:** `IntentEnvelopeData::$expiresOn` is renamed to `$orderExpiresOn`
+  (wire key `orderExpiresOn`). It is the order expiry, not the intent expiry.
+- `EventType` now has 9 cases. **BC:** Any consumer performing an exhaustive
+  `match (EventType)` without a `default` arm must add branches for
+  `EventType::PaymentPartReleased` and `EventType::IntentExpired` or PHP will
+  throw `UnhandledMatchError`.
 
 ### Notes
 
