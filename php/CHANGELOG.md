@@ -14,8 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `options.intentDurationTicks` only when set.
 - Webhook `intent.expired` event (`EventType::IntentExpired`), routed to the
   intent sub-envelope.
-- `IntentEnvelopeData::$expirationDate` and `$expiredAt`: nullable ISO 8601
-  strings for when the intent expires and when it expired.
+- `IntentEnvelopeData` and `IntentDetails` gain `$expirationDate` and
+  `$expiredAt`: nullable ISO 8601 strings for when the intent expires and
+  when it expired.
 - `CreateIntentRequest::$desiredLanguage`: optional customer UI language
   (ISO 639-1 like `fr`, or a locale like `fr_FR`) sent to `POST /api/intents`
   as `desiredLanguage`. Trimmed on construction; blank becomes `null`; capped

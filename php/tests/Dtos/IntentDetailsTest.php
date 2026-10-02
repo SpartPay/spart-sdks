@@ -52,6 +52,33 @@ final class IntentDetailsTest extends TestCase
         self::assertSame('https://example.test/c/abc123', $details->links[0]->url);
     }
 
+    public function test_expiration_fields_null_when_absent(): void
+    {
+        $details = IntentDetails::fromArray(self::validBody());
+        self::assertNull($details->expirationDate);
+        self::assertNull($details->expiredAt);
+    }
+
+    public function test_expiration_fields_null_when_explicitly_null(): void
+    {
+        $body = self::validBody();
+        $body['expirationDate'] = null;
+        $body['expiredAt'] = null;
+        $details = IntentDetails::fromArray($body);
+        self::assertNull($details->expirationDate);
+        self::assertNull($details->expiredAt);
+    }
+
+    public function test_expiration_fields_parsed_when_present(): void
+    {
+        $body = self::validBody();
+        $body['expirationDate'] = '2026-05-11T12:49:56+00:00';
+        $body['expiredAt'] = '2026-05-11T12:50:01+00:00';
+        $details = IntentDetails::fromArray($body);
+        self::assertSame('2026-05-11T12:49:56+00:00', $details->expirationDate);
+        self::assertSame('2026-05-11T12:50:01+00:00', $details->expiredAt);
+    }
+
     public function test_fromArray_accepts_numeric_total_value_from_real_wire(): void
     {
         // Server emits MoneyDto.value as a C# `decimal` which lands in PHP
