@@ -13,9 +13,8 @@ namespace Spart\Sdk\Models;
  * would therefore fail validation. Construct without `OrderOptions` at all
  * if you want the server to apply its own defaults.
  *
- * `intentDuration` (optional) overrides how long the intent stays open before
- * it expires. The server applies its default (15 minutes) when omitted and
- * rejects values under 1 minute.
+ * `intentDuration` (optional) sets how long the intent stays open; the server
+ * defaults to 15 minutes and rejects values under 1 minute.
  *
  * `returnUri` and `cancelUri` (when provided) must be absolute http/https URIs.
  *
