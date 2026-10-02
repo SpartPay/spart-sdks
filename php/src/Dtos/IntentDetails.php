@@ -21,6 +21,9 @@ use Spart\Sdk\Models\Money;
  * URLs — the server emits one link, either `Checkout` while pending or
  * `OrderDetails` once completed).
  *
+ * `expirationDate` (when the intent expires) and `expiredAt` (set once it
+ * has expired) are nullable raw ISO-8601 strings, as in the webhook DTO.
+ *
  * `total.value` is a decimal lexeme (e.g. `"100.00"`) preserved verbatim
  * from the server response — see {@see Money} for why precision-safe
  * decimal-string handling matters.
@@ -45,6 +48,8 @@ final class IntentDetails
         public readonly ?string $sessionId,
         public readonly bool $isCompleted,
         public readonly array $links,
+        public readonly ?string $expirationDate = null,
+        public readonly ?string $expiredAt = null,
     ) {
     }
 
@@ -90,6 +95,8 @@ final class IntentDetails
             sessionId: EnvelopeFieldHelper::optionalString($body, 'sessionId', 'IntentDetails'),
             isCompleted: $isCompleted,
             links: $links,
+            expirationDate: EnvelopeFieldHelper::optionalString($body, 'expirationDate', 'IntentDetails'),
+            expiredAt: EnvelopeFieldHelper::optionalString($body, 'expiredAt', 'IntentDetails'),
         );
     }
 

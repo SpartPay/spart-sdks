@@ -30,7 +30,7 @@ final class EnvelopeParsingTest extends TestCase
                 'sessionId'   => 'wc_42',
                 'countryCode' => 'IT',
                 'createdAt'   => '2026-05-06T10:00:00+00:00',
-                'expiresOn'   => '2026-05-13T10:00:00+00:00',
+                'orderExpiresOn' => '2026-05-13T10:00:00+00:00',
             ]],
         ]);
         $t = time();

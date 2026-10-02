@@ -18,6 +18,7 @@ namespace Spart\Sdk\Webhooks;
 enum EventType: string
 {
     case IntentCreated     = 'intent.created';
+    case IntentExpired     = 'intent.expired';
     case PaymentAuthorized = 'payment.authorized';
     case OrderCreated      = 'order.created';
     case OrderCompleted    = 'order.completed';

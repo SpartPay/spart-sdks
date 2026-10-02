@@ -13,6 +13,9 @@ namespace Spart\Sdk\Models;
  * would therefore fail validation. Construct without `OrderOptions` at all
  * if you want the server to apply its own defaults.
  *
+ * `intentDuration` (optional) sets how long the intent stays open; the server
+ * defaults to 15 minutes and rejects values under 1 minute.
+ *
  * `returnUri` and `cancelUri` (when provided) must be absolute http/https URIs.
  *
  * @final
@@ -23,6 +26,7 @@ final class OrderOptions
         public readonly \DateInterval $maxDuration,
         public readonly ?string $returnUri = null,
         public readonly ?string $cancelUri = null,
+        public readonly ?\DateInterval $intentDuration = null,
     ) {
         if ($this->returnUri !== null && !self::isAbsoluteHttpUri($this->returnUri)) {
             throw new \InvalidArgumentException(
@@ -46,8 +50,22 @@ final class OrderOptions
      */
     public function maxDurationAsTicks(): int
     {
+        return self::toTicks($this->maxDuration);
+    }
+
+    /**
+     * Convert {@see $intentDuration} into .NET ticks, or null when unset.
+     * Same epoch-based resolution as {@see maxDurationAsTicks()}.
+     */
+    public function intentDurationAsTicks(): ?int
+    {
+        return $this->intentDuration === null ? null : self::toTicks($this->intentDuration);
+    }
+
+    private static function toTicks(\DateInterval $interval): int
+    {
         $now = new \DateTimeImmutable('@0');
-        $end = $now->add($this->maxDuration);
+        $end = $now->add($interval);
         $totalSeconds = $end->getTimestamp() - $now->getTimestamp();
         return $totalSeconds * 10_000_000;
     }

@@ -66,6 +66,21 @@ final class CreateIntentRequestTest extends TestCase
         self::assertSame(['maxDurationTicks' => 864_000_000_000], $arr['options']);
     }
 
+    public function test_options_emits_intent_duration_ticks_when_set(): void
+    {
+        $req = new CreateIntentRequest(
+            total: Money::fromString('5.00', 'EUR'),
+            lineItems: [new LineItem('I', 1)],
+            sparter: new Contact('a@b.com'),
+            options: new OrderOptions(
+                maxDuration: new \DateInterval('P1D'),
+                intentDuration: new \DateInterval('PT1M'),
+            ),
+        );
+        $arr = $req->toArray();
+        self::assertSame(600_000_000, $arr['options']['intentDurationTicks']);
+    }
+
     public function test_options_always_emits_max_duration_ticks_when_options_present(): void
     {
         // Server's OrderOptions validator runs unconditionally on the sub-object

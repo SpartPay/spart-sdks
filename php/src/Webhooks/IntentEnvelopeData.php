@@ -23,7 +23,9 @@ use Spart\Sdk\Webhooks\Models\WebhookMoney;
  *     sessionId:   string | null,
  *     countryCode: string,
  *     createdAt:   ISO 8601 string,
- *     expiresOn:   ISO 8601 string
+ *     orderExpiresOn: ISO 8601 string,
+ *     expirationDate: ISO 8601 string | null,
+ *     expiredAt:   ISO 8601 string | null
  *   }
  *
  * Notes:
@@ -32,7 +34,9 @@ use Spart\Sdk\Webhooks\Models\WebhookMoney;
  *   - There is no `intentId` on the wire — intents are identified
  *     by shortId in webhook payloads. Merchants who created the
  *     intent already hold the canonical Guid id from IntentResult.
- *   - createdAt/expiresOn are kept as raw ISO 8601 strings; consumers
+ *   - orderExpiresOn is the order expiry; expirationDate is when the
+ *     intent itself expires; expiredAt is set once it has expired.
+ *   - Date fields are kept as raw ISO 8601 strings; consumers
  *     can parse them with DateTimeImmutable when needed. Avoiding
  *     enforced parsing here keeps timezone-quirky inputs from
  *     blowing up the dispatch pipeline before the merchant's handler
@@ -53,7 +57,9 @@ final class IntentEnvelopeData implements EnvelopeData
         public readonly ?string $sessionId,
         public readonly string $countryCode,
         public readonly string $createdAt,
-        public readonly string $expiresOn,
+        public readonly string $orderExpiresOn,
+        public readonly ?string $expirationDate = null,
+        public readonly ?string $expiredAt = null,
     ) {
     }
 
@@ -80,7 +86,9 @@ final class IntentEnvelopeData implements EnvelopeData
             sessionId:   EnvelopeFieldHelper::optionalString($row, 'sessionId', 'IntentEnvelopeData'),
             countryCode: EnvelopeFieldHelper::requireString($row, 'countryCode', 'IntentEnvelopeData'),
             createdAt:   EnvelopeFieldHelper::requireString($row, 'createdAt', 'IntentEnvelopeData'),
-            expiresOn:   EnvelopeFieldHelper::requireString($row, 'expiresOn', 'IntentEnvelopeData'),
+            orderExpiresOn: EnvelopeFieldHelper::requireString($row, 'orderExpiresOn', 'IntentEnvelopeData'),
+            expirationDate: EnvelopeFieldHelper::optionalString($row, 'expirationDate', 'IntentEnvelopeData'),
+            expiredAt:   EnvelopeFieldHelper::optionalString($row, 'expiredAt', 'IntentEnvelopeData'),
         );
     }
 }

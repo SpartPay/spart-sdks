@@ -25,8 +25,25 @@ final class EventTest extends TestCase
             'sessionId'   => 'wc_42',
             'countryCode' => 'IT',
             'createdAt'   => '2026-05-06T10:00:00+00:00',
-            'expiresOn'   => '2026-05-13T10:00:00+00:00',
+            'orderExpiresOn' => '2026-05-13T10:00:00+00:00',
         ];
+    }
+
+    public function test_intent_expired_routes_to_intent_envelope(): void
+    {
+        $intent = self::intentSubEnvelope() + [
+            'expirationDate' => '2026-05-06T10:15:00+00:00',
+            'expiredAt'      => '2026-05-06T10:15:30+00:00',
+        ];
+        $body = (string) json_encode([
+            'id' => 'evt_x', 'type' => 'intent.expired', 'createdAt' => '2026-05-06T10:15:30Z',
+            'apiVersion' => 'v1', 'merchantAppId' => 'app_1',
+            'data' => ['intent' => $intent],
+        ]);
+        $evt = Event::fromJson($body, deliveryId: 'd1', attempt: 1);
+        self::assertSame(EventType::IntentExpired, $evt->knownType);
+        self::assertInstanceOf(IntentEnvelopeData::class, $evt->data);
+        self::assertSame('2026-05-06T10:15:30+00:00', $evt->data->expiredAt);
     }
 
     /** @return array<string,mixed> */

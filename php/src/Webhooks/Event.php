@@ -67,7 +67,7 @@ final class Event
         $test = is_array($data['test'] ?? null) ? $data['test'] : null;
 
         return match ($known) {
-            EventType::IntentCreated
+            EventType::IntentCreated, EventType::IntentExpired
                 => $intent !== null ? IntentEnvelopeData::fromArray($intent) : null,
             EventType::OrderCreated, EventType::OrderCompleted, EventType::OrderCanceled, EventType::OrderExpired
                 => $order !== null ? OrderEnvelopeData::fromArray($order) : null,

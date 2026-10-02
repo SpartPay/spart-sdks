@@ -17,11 +17,11 @@ use Spart\Sdk\Webhooks\Models\WebhookMoney;
  *
  *   { shortId, total{currency,amount}, lineItems[{name,quantity}],
  *     sparter{fullName,email}, sessionId?, countryCode,
- *     createdAt, expiresOn }
+ *     createdAt, orderExpiresOn, expirationDate?, expiredAt? }
  *
  * Notes:
  *   - sessionId is nullable: server emits "sessionId": null when not set.
- *   - createdAt/expiresOn are kept as raw ISO 8601 strings; consumers
+ *   - date fields are kept as raw ISO 8601 strings; consumers
  *     can parse them with DateTimeImmutable when needed (no enforced
  *     parsing, so timezone-quirky inputs don't blow up the dispatch
  *     pipeline before the merchant's handler sees them).
@@ -45,7 +45,7 @@ final class IntentEnvelopeDataTest extends TestCase
             'sessionId'   => 'wc_42',
             'countryCode' => 'IT',
             'createdAt'   => '2026-05-06T10:00:00+00:00',
-            'expiresOn'   => '2026-05-13T10:00:00+00:00',
+            'orderExpiresOn' => '2026-05-13T10:00:00+00:00',
         ];
     }
 
@@ -70,7 +70,24 @@ final class IntentEnvelopeDataTest extends TestCase
         self::assertSame('wc_42', $d->sessionId);
         self::assertSame('IT', $d->countryCode);
         self::assertSame('2026-05-06T10:00:00+00:00', $d->createdAt);
-        self::assertSame('2026-05-13T10:00:00+00:00', $d->expiresOn);
+        self::assertSame('2026-05-13T10:00:00+00:00', $d->orderExpiresOn);
+    }
+
+    public function test_expiration_fields_null_when_absent(): void
+    {
+        $d = IntentEnvelopeData::fromArray(self::validRow());
+        self::assertNull($d->expirationDate);
+        self::assertNull($d->expiredAt);
+    }
+
+    public function test_expiration_fields_parsed_when_present(): void
+    {
+        $row = self::validRow();
+        $row['expirationDate'] = '2026-05-06T10:15:00+00:00';
+        $row['expiredAt'] = '2026-05-06T10:15:30+00:00';
+        $d = IntentEnvelopeData::fromArray($row);
+        self::assertSame('2026-05-06T10:15:00+00:00', $d->expirationDate);
+        self::assertSame('2026-05-06T10:15:30+00:00', $d->expiredAt);
     }
 
     public function test_sessionId_null_when_absent(): void
@@ -148,10 +165,10 @@ final class IntentEnvelopeDataTest extends TestCase
         IntentEnvelopeData::fromArray($row);
     }
 
-    public function test_throws_on_missing_expiresOn(): void
+    public function test_throws_on_missing_orderExpiresOn(): void
     {
         $row = self::validRow();
-        unset($row['expiresOn']);
+        unset($row['orderExpiresOn']);
         $this->expectException(\InvalidArgumentException::class);
         IntentEnvelopeData::fromArray($row);
     }

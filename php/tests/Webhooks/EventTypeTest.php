@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Spart\Sdk\Webhooks\EventType;
 
 /**
- * Locks the SDK's `EventType` enum to the canonical 8-value set the Spart
+ * Locks the SDK's `EventType` enum to the canonical 9-value set the Spart
  * server emits.
  *
  * The set is intentionally closed: any new server-side event type must
@@ -17,19 +17,20 @@ use Spart\Sdk\Webhooks\EventType;
  * The "absent cases" test catches three categories of drift:
  *  - wrong spellings the SDK previously had (`order.cancelled` w/ two Ls)
  *  - speculative cases the SDK invented but the server never emits
- *    (`payment.captured`, `payment.failed`, `intent.expired`, `test.ping`)
+ *    (`payment.captured`, `payment.failed`, `test.ping`)
  *  - any future case added to the enum without a matching server change
  */
 final class EventTypeTest extends TestCase
 {
-    public function test_enum_has_exactly_eight_canonical_cases(): void
+    public function test_enum_has_exactly_nine_canonical_cases(): void
     {
-        self::assertCount(8, EventType::cases());
+        self::assertCount(9, EventType::cases());
     }
 
     public function test_each_canonical_value_maps_to_its_case(): void
     {
         self::assertSame(EventType::IntentCreated, EventType::from('intent.created'));
+        self::assertSame(EventType::IntentExpired, EventType::from('intent.expired'));
         self::assertSame(EventType::PaymentAuthorized, EventType::from('payment.authorized'));
         self::assertSame(EventType::OrderCreated, EventType::from('order.created'));
         self::assertSame(EventType::OrderCompleted, EventType::from('order.completed'));
@@ -55,7 +56,6 @@ final class EventTypeTest extends TestCase
 
         // Old SDK invented these; server never emits them.
         yield 'speculative test.ping' => ['test.ping'];
-        yield 'speculative intent.expired' => ['intent.expired'];
         yield 'speculative payment.captured' => ['payment.captured'];
         yield 'speculative payment.failed' => ['payment.failed'];
 
